@@ -2,6 +2,7 @@
 	var masterWindow = Ti.UI.createWindow();
 	
 	// Global Constants
+	var CURRENT_LOCATION = "170 Kessles road, Nathan QLD 4111";
 	var LATITUDE_BASE = -27.552359;
 	var LONGITUDE_BASE = 153.053627;
 	
@@ -48,6 +49,20 @@
 		
 	});
 	
+	var win6 = Ti.UI.createWindow({
+		title:"Map",
+		backgroundColor:"#FFFFFF",
+		navBarHidden: false
+		
+	});
+	
+	var win7 = Ti.UI.createWindow({
+		title:"Map",
+		backgroundColor:"#FFFFFF",
+		navBarHidden: false
+		
+	});
+	
 	// content for the About page
 	var aboutLabel = Ti.UI.createLabel({
 		color: '#900',
@@ -69,6 +84,7 @@
 	win2.rightNavButton = aboutButton;
 	win3.rightNavButton = aboutButton;
 	win5.rightNavButton = aboutButton;
+	win6.rightNavButton = aboutButton;
 	
 		
 	aboutButton.addEventListener('click', function(){
@@ -133,8 +149,8 @@
 	    userLocation:false   
 	});
 	
-	// install and open the skateMaps database
-	var db = Ti.Database.install('/mydata/skateMapsDB.sqlite', 'skateMapsDB.sqlite');
+	// install and open the skateMaps database	
+	var db = Ti.Database.install('/mydata/skateMapsDB.sqlite', 'skateMapsDB.sqlite');	
 	var tv = Ti.UI.createTableView({minRowHeight:50});
 	var data = [];
 	var parksRS = db.execute('SELECT Id, Name, Address, Rating, Description, Latitude, \
@@ -154,6 +170,7 @@
 		});
 
 		var nameAndAddressView = Ti.UI.createView({
+			backgroundDisabledImage: parksRS.fieldByName('Address'),
 			height: Titanium.UI.SIZE,
 			layout:'vertical',
 			left:100,
@@ -206,17 +223,54 @@
 			right: 10,
 			width: 20,
 			height: 35,
+			zindex: 1
 		});
 		
 		var droppinButtonLabel = Titanium.UI.createLabel({	
+			color:"#363F45",
+			text: parksRS.fieldByName('Address'),
+			font: {fontSize:1}, 
 			top:0,	
 			right: 0,
 			height:50,
 			width:'100%',
-			backgroundColor:"#363F45"
+			backgroundColor:"#363F45",
+					
 		});
 		droppinButtonLabel.add(labelAddress);
 		droppinButtonLabel.add(droppinButton);
+		
+		nameAndAddressView.addEventListener('click', function(e){
+			var addy = new String(e.source.backgroundDisabledImage);
+			Ti.API.info("title " + addy);
+			/*
+			var str = 'http://maps.google.com.au/?daddr='+
+					e.textid + '&saddr='+ CURRENT_LOCATION;
+
+			Ti.API.info("droppin " + e.textid + ", clicked.");
+			var webview = Ti.UI.createWebView({url:str});	
+			win6.add(webview);
+			win6.backButtonTitle = 'back';
+			nav.open(win6, {animated:true});
+			*/
+		
+		});
+		
+		/*
+		droppinButtonLabel.addEventListener('click', function(e){
+			
+			var str = 'http://maps.google.com.au/?daddr='+
+					e.textid + '&saddr='+ CURRENT_LOCATION;
+				
+			Ti.API.info("droppin " + e.textid + ", clicked.");
+			var webview = Ti.UI.createWebView({url:str});	
+			win6.add(webview);
+			win6.backButtonTitle = 'back';
+			nav.open(win6, {animated:true});
+		
+		});
+		
+		*/
 		
 		// creates a image view with one star and takes the position of the star as an argument
 		var star = function(leftPosition){
@@ -301,7 +355,7 @@
 		imageThumb.addEventListener('click', function(e){
 			var imagePath = new String(e.source.image);
 			imagePath = imagePath.replace("1.jpg", "");
-			Ti.API.info(imagePath);
+			//Ti.API.info(imagePath);
 				
 
 			var imageWrapper = function(_imagePath){
@@ -353,6 +407,12 @@
 	db.close();
 	tv.setData(data);
 	
+	
+	
+	
+	
+	
+	
 	// 
 	mapButton.addEventListener('click', function(){
 		win5.backButtonTitle = 'Home';
@@ -367,6 +427,7 @@
 				latitude: locRS.fieldByName('Latitude'),
 				longitude: locRS.fieldByName('Longitude'),
 				title: locRS.fieldByName('Name'),
+				subtitle: locRS.fieldByName('Address'),
 				pincolor: Ti.Map.ANNOTATION_RED,
 				animate: true,
 				leftButton: Ti.UI.iPhone.SystemButton.INFO_LIGHT,
@@ -380,6 +441,7 @@
 			latitude: LATITUDE_BASE,
 			longitude: LONGITUDE_BASE,
 			title: 'You are here!',
+			subtitle: "Mt Gravatt",
 			pincolor: Ti.Map.ANNOTATION_GREEN,
 			animate: true,
 			myid: 0	//unique identifyer for this annotation
@@ -404,14 +466,27 @@
 	win5.add(mapview);
 	
 	mapview.addEventListener('click', function(e){
-		Ti.API.info("Annotation " + e.title + " clicked, id: " + e.annotation.myid);
-		
-		if (e.clicksource == 'leftButton' || e.clicksource == 'leftPane' ||
-		e.clicksource == 'leftView'){
-			Ti.API.info("Annotation " + e.title + ", left button clicked.");
+	
+		var str = 'http://maps.google.com.au/?daddr='+
+					 e.annotation.subtitle + '&saddr='+ CURRENT_LOCATION;
+				
+		if (e.clicksource == 'leftButton'){
+				Ti.API.info("Annotation " + e.title + ", left button clicked.");
+				var webview = Ti.UI.createWebView({url:str});	
+				win6.add(webview);
+				win6.backButtonTitle = 'back';
+				nav.open(win6, {animated:true});
+
+		}
+		else if (e.clicksource == 'leftPane'){
+			Ti.API.info("Annotation " + e.title + ", leftPane clicked.");
+		}
+		else if (e.clicksource == 'leftView'){
+			Ti.API.info("Annotation " + e.title + ", leftView clicked.");			
 		}
 		
 	});
+	
 	
 	
 				
