@@ -36,6 +36,7 @@
 	var win4 = Ti.UI.createWindow({
 		title:"About",
 		backgroundColor: '#000000',
+		backgroundImage:'/images/purush_fs_crook.jpg',
 		navBarHidden: false
 		
 	});
@@ -91,10 +92,7 @@
 			backFillStart: false},
 		borderWidth:1,
 		borderColor:'#666',
-		selectedColor: '#B200000',
-		//backgroundSelectedImage: '/images/skate_silhouette.jpg'
-			
-		
+		selectedColor: '#B200000',	
 	});
 	
 	listButton.addEventListener('click', function(){
@@ -220,58 +218,18 @@
 		droppinButtonLabel.add(labelAddress);
 		droppinButtonLabel.add(droppinButton);
 		
+		// creates a image view with one star and takes the position of the star as an argument
+		var star = function(leftPosition){
+			var star = Ti.UI.createImageView({
+				image: '/images/star_yellow1.png',
+				top: 5,
+				left:leftPosition,
+				height:25,
+				width:25,
+				backgroundColor:"#363F45"});			
+			return star;		
+		};
 		
-		// star images used for the rating system
-		var star1 = Ti.UI.createImageView({
-			image: '/images/star_yellow1.png',
-			top: 5,
-			left:0,
-			height:25,
-			width:25,
-			backgroundColor:"#363F45"
-			
-		});
-		
-		var star2 = Ti.UI.createImageView({
-			image: '/images/star_yellow1.png',
-			top: 5,
-			left:25,
-			height:25,
-			width:25,
-			backgroundColor:"#363F45"
-			
-		});
-		
-		var star3 = Ti.UI.createImageView({
-			image: '/images/star_yellow1.png',
-			top: 5,
-			left:50,
-			height:25,
-			width:25,
-			backgroundColor:"#363F45"
-			
-		});
-		
-		var star4 = Ti.UI.createImageView({
-			image: '/images/star_yellow1.png',
-			top: 5,
-			left:75,
-			height:25,
-			width:25,
-			backgroundColor:"#363F45"
-			
-		});
-		
-		var star5 = Ti.UI.createImageView({
-			image: '/images/star_yellow1.png',
-			top: 5,
-			left:100,
-			height:25,
-			width:25,
-			backgroundColor:"#363F45"
-			
-		});
-			
 		var labelRating = Titanium.UI.createLabel({
 			top: 15,
 			left:0,
@@ -284,23 +242,25 @@
 		// determines how many stars for each skatepark and adds them 
 		// to the ratings label
 		(function (){			
-	
+			var pos1 = 0; var pos2 = 25; var pos3 = 50; var pos4 = 75; var pos5 = 100;
 			if (parksRS.fieldByName('Rating') === 1){
-				labelRating.add(star1);	
+				labelRating.add(star(pos1));	
 			}
 			else if (parksRS.fieldByName('Rating') === 2){
-				labelRating.add(star1,star2);	
+				labelRating.add(star(pos1),star(pos2));	
 			}
 			else if (parksRS.fieldByName('Rating') === 3){
-				labelRating.add(star1,star2,star3);	
+				labelRating.add(star(pos1),star(pos2),star(pos3));	
 			}
 			else if (parksRS.fieldByName('Rating') === 4){
-				labelRating.add(star1,star2,star3,star4);	
+				labelRating.add(star(pos1),star(pos2),star(pos3),star(pos4));	
 			}
 			else if (parksRS.fieldByName('Rating') === 5){
-				labelRating.add(star1,star2,star3,star4,star5);
+				labelRating.add(star(pos1),star(pos2),star(pos3),star(pos4),star(pos5));
 			}		
 		})();
+		
+		
 		
 		// grey label behind description text
 		var labelDesc = Titanium.UI.createLabel({	
@@ -325,7 +285,7 @@
 		});			
 		labelDesc.add(descText);	
 		
-		// thumnbnail image of skatepark		
+		// thumnbnail image of skatepark in list		
 		var imageThumb = Ti.UI.createImageView({
 			image: parksRS.fieldByName('Image_1'),
 			left:10,
@@ -337,72 +297,38 @@
 			borderColor: "#FFFFFF"		
 		});
 		
-		// when image is clicked it opens a photoscroll of larger images
+		// when image is clicked it opens a photoScroll of larger images
 		imageThumb.addEventListener('click', function(e){
 			var imagePath = new String(e.source.image);
 			imagePath = imagePath.replace("1.jpg", "");
 			Ti.API.info(imagePath);
+				
+
+			var imageWrapper = function(_imagePath){
+				var img = Ti.UI.createImageView({
+					image: _imagePath		
+				});		
 							
-			var img1 = Ti.UI.createImageView({
-				image: imagePath + '1.jpg'		
-			});
-			
-			var img1Wrapper = Ti.UI.createScrollView({
-				contentWidth: 300,
-				contentHeight: 150,
-				backgroundColor: 'black',
-				height: '100%',
-				width: '100%',
-				maxZoomScale:4.0
-			});
-			img1Wrapper.add(img1);
-			
-			var img2 = Ti.UI.createImageView({
-				image: imagePath + '2.jpg'
-			});
-			
-			var img2Wrapper = Ti.UI.createScrollView({
-				contentWidth: 300,
-				contentHeight: 150,
-				backgroundColor: 'black',
-				height: '100%',
-				width: '100%',
-				maxZoomScale:4.0
-			});
-			img2Wrapper.add(img2);
-			
-			var img3 = Ti.UI.createImageView({
-				image: imagePath + '3.jpg'
-			});
-			
-			var img3Wrapper = Ti.UI.createScrollView({
-				contentWidth: 300,
-				contentHeight: 150,
-				backgroundColor: 'black',
-				height: '100%',
-				width: '100%',
-				maxZoomScale:4.0
-			});
-			img3Wrapper.add(img3);
-			
-			var img4 = Ti.UI.createImageView({
-				image: imagePath + '4.jpg'
-			});
-			
-			var img4Wrapper = Ti.UI.createScrollView({
-				contentWidth: 300,
-				contentHeight: 150,
-				backgroundColor: 'black',
-				height: '100%',
-				width: '100%',
-				maxZoomScale:4.0
-			});
-			img4Wrapper.add(img4);
-	
+				var imgWrapper = Ti.UI.createScrollView({
+					contentWidth: 300,
+					contentHeight: 150,
+					backgroundColor: 'black',
+					height: '100%',
+					width: '100%',
+					maxZoomScale:4.0
+				});
+				imgWrapper.add(img);
+				return imgWrapper;
+			};
+				
 			var photosView = Ti.UI.createScrollableView({
 				showPaggingControl: true,
-				views: [img1Wrapper, img2Wrapper, img3Wrapper, img4Wrapper]
+				views: [imageWrapper(imagePath + '1.jpg'), 
+						imageWrapper(imagePath + '2.jpg'),
+				 		imageWrapper(imagePath + '3.jpg'),
+				 		imageWrapper(imagePath + '4.jpg')]
 			});
+			
 			photosView.addEventListener('pinch', function(e){
 				scale:2;
 			});
@@ -414,7 +340,6 @@
 		
 		nameAndAddressView.add(labelName);
 		nameAndAddressView.add(droppinButtonLabel);
-		//nameAndAddressView.add(labelAddress);
 		
 		descriptionView.add(labelRating, labelDesc);
 		row.add(nameAndAddressView, descriptionView);
