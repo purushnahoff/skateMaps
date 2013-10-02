@@ -6,73 +6,58 @@
 	var LATITUDE_BASE = -27.552359;
 	var LONGITUDE_BASE = 153.053627;
 	
-	
 	//Home screen
 	var win1 = Titanium.UI.createWindow({
 		title:"SkateMaps",
 		backgroundImage: '/images/pushing_img1.jpg',
 		backgroundColor: '#000000',
-		navBarHidden: false
-		
+		navBarHidden: false,
+		barColor: '#363F45'		
 	});
 	
 	var nav = Ti.UI.iPhone.createNavigationGroup({
-		window: win1,				
+		window: win1				
 	});
 		
 	var win2 = Ti.UI.createWindow({
 		title:"SkateMaps",
 		backgroundColor:"#000000",
-		navBarHidden: false
+		navBarHidden: false,
+		barColor: '#363F45'
+
 		
 	});
 	
 	var win3 = Ti.UI.createWindow({
 		title:"SkateMaps",
 		backgroundColor: '#000000',
-		navBarHidden: false
-		
+		navBarHidden: false,
+		barColor: '#363F45'		
 	});
 	
 	var win4 = Ti.UI.createWindow({
-		title:"About",
+		title:"SkateMaps",
 		backgroundColor: '#000000',
 		backgroundImage:'/images/purush_fs_crook.jpg',
-		navBarHidden: false
-		
+		navBarHidden: false,
+		barColor: '#363F45'	
 	});
 	
 	var win5 = Ti.UI.createWindow({
-		title:"Map",
+		title:"SkateMap",
 		backgroundColor:"#FFFFFF",
-		navBarHidden: false
-		
+		navBarHidden: false,
+		barColor: '#363F45'	
 	});
 	
 	var win6 = Ti.UI.createWindow({
-		title:"Map",
+		title:"SkateMap",
 		backgroundColor:"#FFFFFF",
-		navBarHidden: false
-		
+		navBarHidden: false,
+		barColor: '#363F45'
 	});
-	
-	var win7 = Ti.UI.createWindow({
-		title:"Map",
-		backgroundColor:"#FFFFFF",
-		navBarHidden: false
-		
-	});
-	
-	// content for the About page
-	var aboutLabel = Ti.UI.createLabel({
-		color: '#900',
-		text: 'Some info about the app \n-How to use it\n-The developer name\n-Contact email to report bugs',
-		textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
-		top: 30,
-		width: Ti.UI.SIZE, height: Ti.UI.SIZE
-	});
-	
-	win4.add(aboutLabel);
+
+
 	
 	// about button in nav bar available from all windows
 	var aboutButton = Titanium.UI.createButton({
@@ -89,9 +74,29 @@
 		
 	aboutButton.addEventListener('click', function(){
 		win4.backButtonTitle = 'Back';
+		
+		var aboutText = 
+		Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'about.txt');
+		if(aboutText.exists())
+		{
+			var textFromFile = aboutText.read().text;
+				// content for the About page
+			var aboutLabel = Ti.UI.createLabel({
+				color: '#FF0000',
+				text: textFromFile,
+				font:{fontSize:12,fontFamily:'default'},
+				textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
+				top: 30,
+				width: Ti.UI.SIZE, height: Ti.UI.SIZE
+			});
+			win4.add(aboutLabel);
+		}
+		
+		
 		nav.open(win4, {animated:true});
 	});
 	
+	// home page list button
 	var listButton = Ti.UI.createButton({
 		title: 'List Parks',
 		height: 60,
@@ -108,7 +113,7 @@
 			backFillStart: false},
 		borderWidth:1,
 		borderColor:'#666',
-		selectedColor: '#B200000',	
+		selectedColor: '#FF00000',	
 	});
 	
 	listButton.addEventListener('click', function(){
@@ -132,7 +137,7 @@
 			backFillStart: false},
 		borderWidth:1,
 		borderColor:'#666',
-		selectedColor: '#B200000'
+		selectedColor: '#FF00000'
 	});
 	
 	
@@ -170,7 +175,6 @@
 		});
 
 		var nameAndAddressView = Ti.UI.createView({
-			backgroundDisabledImage: parksRS.fieldByName('Address'),
 			height: Titanium.UI.SIZE,
 			layout:'vertical',
 			left:100,
@@ -216,9 +220,9 @@
 			
 		});
 			
-		// 
-		var droppinButton = Ti.UI.createButton({
-			backgroundImage: '/images/google_pin.png',
+		// google droppin icon 
+		var droppin = Ti.UI.createImageView({
+			image: '/images/google_pin.png',
 			top: 5,
 			right: 10,
 			width: 20,
@@ -226,10 +230,9 @@
 			zindex: 1
 		});
 		
-		var droppinButtonLabel = Titanium.UI.createLabel({	
-			color:"#363F45",
-			text: parksRS.fieldByName('Address'),
-			font: {fontSize:1}, 
+		// blank label which I added the address and droppin icon to, to help with layout
+		var droppinLabel = Titanium.UI.createLabel({	
+		//	color:"#363F45",
 			top:0,	
 			right: 0,
 			height:50,
@@ -237,40 +240,28 @@
 			backgroundColor:"#363F45",
 					
 		});
-		droppinButtonLabel.add(labelAddress);
-		droppinButtonLabel.add(droppinButton);
+		droppinLabel.add(labelAddress);
+		droppinLabel.add(droppin);
 		
-		nameAndAddressView.addEventListener('click', function(e){
-			var addy = new String(e.source.backgroundDisabledImage);
-			Ti.API.info("title " + addy);
-			/*
-			var str = 'http://maps.google.com.au/?daddr='+
-					e.textid + '&saddr='+ CURRENT_LOCATION;
-
-			Ti.API.info("droppin " + e.textid + ", clicked.");
-			var webview = Ti.UI.createWebView({url:str});	
-			win6.add(webview);
-			win6.backButtonTitle = 'back';
-			nav.open(win6, {animated:true});
-			*/
-		
-		});
-		
-		/*
-		droppinButtonLabel.addEventListener('click', function(e){
+		// this opens google maps in a new window and passes it the park address
+		// and the mock current location
+		// -note: the user can click on the address or droppin icon to get directions
+		droppinLabel.addEventListener('click',function(e){
 			
+			db = Ti.Database.open('skateMapsDB.sqlite');
+			var queryStr = "SELECT address FROM parks WHERE id =" + (e.index + 1);
+			var addressRS = db.execute(queryStr);
 			var str = 'http://maps.google.com.au/?daddr='+
-					e.textid + '&saddr='+ CURRENT_LOCATION;
+					addressRS.getFieldByName('address') + '&saddr='+ CURRENT_LOCATION;
 				
-			Ti.API.info("droppin " + e.textid + ", clicked.");
 			var webview = Ti.UI.createWebView({url:str});	
 			win6.add(webview);
 			win6.backButtonTitle = 'back';
 			nav.open(win6, {animated:true});
-		
+
+			db.close();
 		});
-		
-		*/
+	
 		
 		// creates a image view with one star and takes the position of the star as an argument
 		var star = function(leftPosition){
@@ -313,9 +304,7 @@
 				labelRating.add(star(pos1),star(pos2),star(pos3),star(pos4),star(pos5));
 			}		
 		})();
-		
-		
-		
+			
 		// grey label behind description text
 		var labelDesc = Titanium.UI.createLabel({	
 			height: Titanium.UI.SIZE,
@@ -355,9 +344,7 @@
 		imageThumb.addEventListener('click', function(e){
 			var imagePath = new String(e.source.image);
 			imagePath = imagePath.replace("1.jpg", "");
-			//Ti.API.info(imagePath);
-				
-
+			
 			var imageWrapper = function(_imagePath){
 				var img = Ti.UI.createImageView({
 					image: _imagePath		
@@ -393,26 +380,18 @@
 		});
 		
 		nameAndAddressView.add(labelName);
-		nameAndAddressView.add(droppinButtonLabel);
-		
+		nameAndAddressView.add(droppinLabel);	
 		descriptionView.add(labelRating, labelDesc);
 		row.add(nameAndAddressView, descriptionView);
-		row.add(imageThumb);
-		
+		row.add(imageThumb);		
 		data.push(row);
-		parksRS.next();
+		parksRS.next();		
+	}	
 		
-	}
 	parksRS.close();
 	db.close();
 	tv.setData(data);
-	
-	
-	
-	
-	
-	
-	
+
 	// 
 	mapButton.addEventListener('click', function(){
 		win5.backButtonTitle = 'Home';
@@ -471,7 +450,7 @@
 					 e.annotation.subtitle + '&saddr='+ CURRENT_LOCATION;
 				
 		if (e.clicksource == 'leftButton'){
-				Ti.API.info("Annotation " + e.title + ", left button clicked.");
+			//	Ti.API.info("Annotation " + e.title + ", left button clicked.");
 				var webview = Ti.UI.createWebView({url:str});	
 				win6.add(webview);
 				win6.backButtonTitle = 'back';
@@ -486,13 +465,6 @@
 		}
 		
 	});
-	
-	
-	
-				
-/////////////////////////////////////////////////////////////////////////////				
-				
-	
 		
 	win2.add(tv);
 	win1.add(listButton);
