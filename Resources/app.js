@@ -153,20 +153,15 @@
 	    regionFit:true,
 	    userLocation:false   
 	});
-	
-	// install and open the skateMaps database	
-	var db = Ti.Database.install('/mydata/skateMapsDB.sqlite', 'skateMapsDB.sqlite');	
-	var tv = Ti.UI.createTableView({minRowHeight:50});
-	var data = [];
-	var parksRS = db.execute('SELECT Id, Name, Address, Rating, Description, Latitude, \
-	 			Longitude, Image_thumb, Image_1, Image_2, Image_3, Image_4 FROM parks');
-		
-	
-	//////////////////////////////////////////////////////////////////////
-	// set the list view with data from DB
-	for (var i = 0; i < parksRS.getRowCount(); i++)
-	{
 
+	
+	
+	// create the table view for the list of parks	
+	var tv = Ti.UI.createTableView({minRowHeight:50, backgroundColor: '#000000'});
+	var data = [];
+	// loads the list with parks in closest to furthest order
+	var fillList = function(resultSet){
+		
 		var row = Ti.UI.createTableViewRow({
 			
 			height: Titanium.UI.SIZE,
@@ -193,7 +188,7 @@
 		});	
 		
 		var labelName = Titanium.UI.createLabel({
-			text: parksRS.fieldByName('Name'),
+			text: resultSet.fieldByName('Name'),
 			font: {
 				fontSize: '16dp',
 				fontWeight: 'bold'	
@@ -207,7 +202,7 @@
 		});
 		
 		var labelAddress = Titanium.UI.createLabel({
-			text: parksRS.fieldByName('Address'),
+			text: resultSet.fieldByName('Address'),
 			font: {
 				fontSize: '12dp',	
 			},
@@ -232,7 +227,6 @@
 		
 		// blank label which I added the address and droppin icon to, to help with layout
 		var droppinLabel = Titanium.UI.createLabel({	
-		//	color:"#363F45",
 			top:0,	
 			right: 0,
 			height:50,
@@ -247,19 +241,19 @@
 		// and the mock current location
 		// -note: the user can click on the address or droppin icon to get directions
 		droppinLabel.addEventListener('click',function(e){
-			
-			db = Ti.Database.open('skateMapsDB.sqlite');
-			var queryStr = "SELECT address FROM parks WHERE id =" + (e.index + 1);
-			var addressRS = db.execute(queryStr);
+			var json = JSON.stringify(e.source);
+			var start = json.indexOf(':');
+			var end = json.indexOf('left');
+			end -= 5;
+			var address = json.substr(start + 2, end - start);
+	
 			var str = 'http://maps.google.com.au/?daddr='+
-					addressRS.getFieldByName('address') + '&saddr='+ CURRENT_LOCATION;
+					address + '&saddr='+ CURRENT_LOCATION;
 				
 			var webview = Ti.UI.createWebView({url:str});	
 			win6.add(webview);
 			win6.backButtonTitle = 'back';
-			nav.open(win6, {animated:true});
-
-			db.close();
+			nav.open(win6, {animated:true});		
 		});
 	
 		
@@ -288,19 +282,19 @@
 		// to the ratings label
 		(function (){			
 			var pos1 = 0; var pos2 = 25; var pos3 = 50; var pos4 = 75; var pos5 = 100;
-			if (parksRS.fieldByName('Rating') === 1){
+			if (resultSet.fieldByName('Rating') === 1){
 				labelRating.add(star(pos1));	
 			}
-			else if (parksRS.fieldByName('Rating') === 2){
+			else if (resultSet.fieldByName('Rating') === 2){
 				labelRating.add(star(pos1),star(pos2));	
 			}
-			else if (parksRS.fieldByName('Rating') === 3){
+			else if (resultSet.fieldByName('Rating') === 3){
 				labelRating.add(star(pos1),star(pos2),star(pos3));	
 			}
-			else if (parksRS.fieldByName('Rating') === 4){
+			else if (resultSet.fieldByName('Rating') === 4){
 				labelRating.add(star(pos1),star(pos2),star(pos3),star(pos4));	
 			}
-			else if (parksRS.fieldByName('Rating') === 5){
+			else if (resultSet.fieldByName('Rating') === 5){
 				labelRating.add(star(pos1),star(pos2),star(pos3),star(pos4),star(pos5));
 			}		
 		})();
@@ -314,7 +308,7 @@
 		
 		// description text on top of above lableDesc
 		var descText = Titanium.UI.createLabel({
-			text: parksRS.fieldByName('Description'),
+			text: resultSet.fieldByName('Description'),
 			font: { fontSize: '12dp'},
 			top:0,
 			left:5,
@@ -330,7 +324,7 @@
 		
 		// thumnbnail image of skatepark in list		
 		var imageThumb = Ti.UI.createImageView({
-			image: parksRS.fieldByName('Image_1'),
+			image: resultSet.fieldByName('Image_1'),
 			left:10,
 			top:10,
 			height:80,
@@ -385,12 +379,83 @@
 		row.add(nameAndAddressView, descriptionView);
 		row.add(imageThumb);		
 		data.push(row);
-		parksRS.next();		
-	}	
+		tv.setData(data);	
+	};
+	
+
+
+	
+	// install and open the skateMaps database	
+	var db = Ti.Database.install('/mydata/skateMapsDB.sqlite', 'skateMapsDB.sqlite');	
+	
+	// pull out all latitudes and logitudes to create one string to use with google maps
+	var parksRS = db.execute('SELECT Latitude, Longitude FROM parks');
+	var kmsArray = [];
+	var destinationsStr = function(){
+		var locStr = '';
+		for (var i = 0; i < parksRS.getRowCount() - 1; i++)
+		{	
+			locStr += parksRS.getFieldByName('Latitude')  + ',' +
+					  parksRS.getFieldByName('Longitude')  + '|';
+			parksRS.next();		
+		}
+		locStr += parksRS.getFieldByName('Latitude')  + ',' +
+					  parksRS.getFieldByName('Longitude');
 		
-	parksRS.close();
+		return locStr;
+	};
+
+	
+	var url = 'http://maps.googleapis.com/maps/api/distancematrix/json?origins='+
+			CURRENT_LOCATION + '&destinations='+ destinationsStr() + '&sensor=false';		
 	db.close();
-	tv.setData(data);
+	
+	var element, dist;
+	var xhr = Ti.Network.createHTTPClient();
+	
+	xhr.onload = function() 
+	{
+	    var mydata = JSON.parse(this.responseText);  
+	    
+	    for(var i = 0; i < mydata.rows.length; i++)
+	    {
+	    	element = mydata.rows[i];
+	    
+	        for(var i = 0, j = 1; i < element.elements.length; i++, j++)
+	   		{
+	   			dist = element.elements[i];	 
+	   			// add .0j to the end of each Km value to later identify against park id
+	   			// in the db (.01 should not largely reduce accuracy)  			
+	   			kmsArray[i] = dist.distance.value + ('.' + 0 + j);
+	    	}
+	    }
+	    
+	    // sorts the array of distances in accending order	    
+	 	kmsArray.sort(function(a,b){return a-b;});
+	 	
+	 	
+		for (var i = 0; i < kmsArray.length; i++)
+		{
+			var pos = kmsArray[i].indexOf(".");
+			var str = kmsArray[i].substr(pos + 2);
+
+			db = Ti.Database.open('skateMapsDB.sqlite');
+			var queryStr = 'SELECT * FROM parks WHERE id = ' + str;
+			var rowsRS = db.execute(queryStr);
+
+			// build the list of parks in accending order, closest to furthest away
+			fillList(rowsRS);	
+		} 
+	    db.close();
+		
+	    
+	   
+	};
+	xhr.open('GET', url);
+	xhr.send();
+	
+	
+	
 
 	// 
 	mapButton.addEventListener('click', function(){
@@ -465,7 +530,15 @@
 		}
 		
 	});
-		
+///////////////////////////////////////////////////////////////////////////////////////////		
+///////////////////////////////////////////////////////////////////////////////////////////
+	
+
+	
+	
+	
+///////////////////////////////////////////////////////////////////////////////////////////	
+///////////////////////////////////////////////////////////////////////////////////////////		
 	win2.add(tv);
 	win1.add(listButton);
 	win1.add(mapButton);
