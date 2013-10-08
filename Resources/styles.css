@@ -1,0 +1,11 @@
+body
+{	
+  background-image: url(images/purush_fs_crook.jpg);	
+  background-repeat: no-repeat;
+  font-family:Verdana;
+  font-size: 11px; color: green; font-weight: bold; text-align: center;
+}
+
+h2 { margin-top: 30px; text-shadow: 1px 1px 1px #ccc; text-align: center; color: red}
+h3 { font-size: 16px; text-shadow: 1px 1px 1px #ccc; text-align: center; color: red}
+
