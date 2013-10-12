@@ -1,5 +1,7 @@
 (function() {
-	var masterWindow = Ti.UI.createWindow();
+	var masterWindow = Ti.UI.createWindow({
+		orientationModes:[Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT, Ti.UI.LANDSCAPE_RIGHT]	
+	});
 	
 	(function(){ Titanium.UI.createAlertDialog({
 	 	title: 'SkateMaps', 
@@ -67,11 +69,79 @@
 	//Home screen
 	var win1 = Titanium.UI.createWindow({
 		title:"SkateMaps",
-		backgroundImage: '/images/pushing_img1.jpg',
+		//backgroundImage: '/images/pushing_img1.jpg',
 		backgroundColor: '#000000',
 		navBarHidden: false,
-		barColor: '#363F45'		
+		barColor: '#363F45',
+		orientationModes:[Ti.UI.PORTRAIT]	
 	});
+	// home page list parks button
+	var listButton = Ti.UI.createButton({
+		title: 'List Parks',
+		height: 60,
+		width: 145,
+		top: 350,
+		left: 10,
+		style: Ti.UI.iPhone.SystemButtonStyle.PLAIN,
+		borderRadius: 10,
+		font:{fontSize:16,fontFamily:'default',fontWeight:'bold'},
+		backgroundGradient: {type: 'linear',
+			colors: [ '#000001', '#666666'],
+			startPoint: {x:0, y:0},
+			endPoint: {x:5, y:80},
+			backFillStart: false},
+		borderWidth:1,
+		borderColor:'#666',
+		selectedColor: '#FF00000',	
+	});
+	
+	// homw page map view button
+	var mapButton = Ti.UI.createButton({
+		title: 'Map View',
+		height: 60,
+		width: 145,
+		top: 350,
+		right: 10,
+		style: Ti.UI.iPhone.SystemButtonStyle.PLAIN,
+		borderRadius: 10,
+		font:{fontSize:16,fontFamily:'default',fontWeight:'bold'},
+		backgroundGradient: {type: 'linear',
+			colors: [ '#000001', '#666666'],
+			startPoint: {x:0, y:0},
+			endPoint: {x:5, y:80},
+			backFillStart: false},
+		borderWidth:1,
+		borderColor:'#666',
+		selectedColor: '#FF00000'
+	});
+		
+	var homeView = function(){
+		var view = Ti.UI.createView({
+			backgroundImage: '/images/pushing_img1.jpg',
+		});
+		
+		Ti.App.addEventListener('orient', function(evt){
+				if (evt.portrait===true) {
+					view.backgroundImage = '/images/pushing_img1.jpg';
+					listButton.height = 60; listButton.width = 145;
+					listButton.top = 350; mapButton.top = 350; 
+					mapButton.height = 60; mapButton.width = 145;
+						
+				}else{
+					view.backgroundImage = '/images/pushing_h.png';
+					listButton.height = 40; listButton.width = 220;
+					listButton.top = 220; mapButton.top = 220; 
+					mapButton.height = 40; mapButton.width = 220;		
+				}				
+		});
+		
+		view.add(listButton);
+		view.add(mapButton);
+		
+		return view;		
+	};
+	
+	win1.add(homeView());
 	
 	var nav = Ti.UI.iPhone.createNavigationGroup({
 		window: win1				
@@ -81,42 +151,48 @@
 		title:"SkateMaps",
 		backgroundColor:"#000000",
 		navBarHidden: false,
-		barColor: '#363F45'		
+		barColor: '#363F45',
+		orientationModes:[Ti.UI.PORTRAIT]		
 	});
 	
 	var win3 = Ti.UI.createWindow({
 		title:"SkateMaps",
 		backgroundColor: '#000000',
 		navBarHidden: false,
-		barColor: '#363F45'		
+		barColor: '#363F45',
+		orientationModes:[Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT, Ti.UI.LANDSCAPE_RIGHT]	
 	});
 	
 	var win4 = Ti.UI.createWindow({
 		title:"SkateMaps",
 		backgroundColor: '#000000',
 		navBarHidden: false,
-		barColor: '#363F45'	
+		barColor: '#363F45',
+		orientationModes:[Ti.UI.PORTRAIT]	
 	});
 	
 	var win5 = Ti.UI.createWindow({
 		title:"SkateMap",
 		backgroundColor:"#FFFFFF",
 		navBarHidden: false,
-		barColor: '#363F45'	
+		barColor: '#363F45',
+		orientationModes:[Ti.UI.PORTRAIT]	
 	});
 	
 	var win6 = Ti.UI.createWindow({
 		title:"SkateMap",
 		backgroundColor:"#FFFFFF",
 		navBarHidden: false,
-		barColor: '#363F45'
+		barColor: '#363F45',
+		orientationModes:[Ti.UI.PORTRAIT]
 	});
 	
 	var win7 = Ti.UI.createWindow({
 		title:"SkateMaps",
 		backgroundColor:"#000000",
 		navBarHidden: false,
-		barColor: '#363F45'		
+		barColor: '#363F45',
+		orientationModes:[Ti.UI.PORTRAIT]		
 	});
 
 	var actInd = Ti.UI.createActivityIndicator({
@@ -147,48 +223,6 @@
 		nav.open(win4, {animated:true});
 	});
 	
-	// home page list parks button
-	var listButton = Ti.UI.createButton({
-		title: 'List Parks',
-		height: 60,
-		width: 145,
-		top: 350,
-		left: 10,
-		style: Ti.UI.iPhone.SystemButtonStyle.PLAIN,
-		borderRadius: 10,
-		font:{fontSize:16,fontFamily:'default',fontWeight:'bold'},
-		backgroundGradient: {type: 'linear',
-			colors: [ '#000001', '#666666'],
-			startPoint: {x:0, y:0},
-			endPoint: {x:5, y:80},
-			backFillStart: false},
-		borderWidth:1,
-		borderColor:'#666',
-		selectedColor: '#FF00000',	
-	});
-	
-
-
-	
-	// homw page map view button
-	var mapButton = Ti.UI.createButton({
-		title: 'Map View',
-		height: 60,
-		width: 145,
-		top: 350,
-		right: 10,
-		style: Ti.UI.iPhone.SystemButtonStyle.PLAIN,
-		borderRadius: 10,
-		font:{fontSize:16,fontFamily:'default',fontWeight:'bold'},
-		backgroundGradient: {type: 'linear',
-			colors: [ '#000001', '#666666'],
-			startPoint: {x:0, y:0},
-			endPoint: {x:5, y:80},
-			backFillStart: false},
-		borderWidth:1,
-		borderColor:'#666',
-		selectedColor: '#FF00000'
-	});
 	
 	
 	var mapview = Ti.Map.createView({
@@ -204,6 +238,9 @@
 	    userLocation:false   
 	});
 
+	Ti.Gesture.addEventListener('orientationchange', function(e){
+		Ti.App.fireEvent('orient', {portrait:e.source.isPortrait()});
+	});
 
 	// takes a resultSet and returns the address as a string
 	var parkAddress = function(resultSet){
@@ -221,7 +258,7 @@
 		return address;	
 	};
 		
-	
+
 	// create the table view for the list of parks	
 	var tv = Ti.UI.createTableView({backgroundColor: '#000000'});
 	var data = [];
@@ -235,99 +272,105 @@
 			backgroundColor: '#000000'			
 		});
 
-		var nameAndAddressView = Ti.UI.createView({
-			height: Titanium.UI.SIZE,
-			layout:'vertical',
-			left:100,
-			top:10,
-			bottom:10,
-			right:10
-		});	
-		
-		var descriptionView = Ti.UI.createView({
-			height:Titanium.UI.SIZE,
-			layout:'vertical',
-			left:10,
-			top:85,
-			bottom:10,
-			right:10
-		});	
-		
 		var labelName = Titanium.UI.createLabel({
 			text: resultSet.fieldByName('Name'),
-			font: {
-				fontSize: '16dp',
-				fontWeight: 'bold'	
-			},
-			left:0,
+			font: {  fontSize: '16dp', fontWeight: 'bold'	},
+			left:100,
+			top:10,
+			right:10,
 			height:40,
-			width:"100%",
+			width:Titanium.UI.FILL,
 			textAlign:"center",
 			color:"#FFFFFF",
 			backgroundColor:"#363F45"
 		});
 		
-
+		var addressView = Ti.UI.createView({
+			height: 50,
+			width:Titanium.UI.FILL,
+			layout:'vertical',
+			left:100,
+			top:50,
+			right:10,
+			backgroundColor: "#363F45"
+		});	
+		
+		
 		var labelAddress = Titanium.UI.createLabel({
 			text: parkAddress(resultSet),
-			font: {
-				fontSize: '12dp',	
-			},
+			font: { fontSize: '12dp'},
 			left:5,
 			height:50,
-			width:180,
+			width: 165,
 			textAlign:"left",
 			color:"#FFFFFF",
-			backgroundColor:"#363F45",
-			
 		});
-			
+		
+		Ti.App.addEventListener('orient', function(evt){
+			if (evt.portrait===true) {
+				labelAddress.width = 165;
+			}else{
+				labelAddress.width = 340;
+			}
+					
+		});
+		
 		// google droppin icon 
 		var droppin = Ti.UI.createImageView({
 			image: '/images/google_pin.png',
 			top: 5,
-			right: 10,
+			right: 5,
 			width: 20,
-			height: 35,
-			zindex: 1
+			height: 35,	
 		});
 		
-		// blank label which I added the address and droppin icon to, to help with layout
-		var droppinLabel = Titanium.UI.createLabel({	
+			
+		// label which I added the address and droppin icon to, to help with layout 
+		var droppinAndAddressLabel = Titanium.UI.createLabel({	
+			text: parkAddress(resultSet),
+			font: {fontSize: '4dp'},
+			color: "#363F45",
 			top:0,	
 			right: 0,
 			height:50,
 			width:'100%',
-			backgroundColor:"#363F45",
-					
+			backgroundColor:"#363F45",			
 		});
-		droppinLabel.add(labelAddress);
-		droppinLabel.add(droppin);
-		
-		// this opens google maps in a new window and passes it the park address
-		// and the mock current location
-		// -note: the user can click on the address or droppin icon to get directions
-		droppinLabel.addEventListener('click',function(e){
-			var json = JSON.stringify(e.source);
-			var start = json.indexOf(':');
-			var end = json.indexOf('left');
-			end -= 5;
-			var address = json.substr(start + 2, end - start);
 	
+		droppinAndAddressLabel.add(labelAddress);
+		droppinAndAddressLabel.add(droppin);		
+		addressView.add(droppinAndAddressLabel);	
+		row.add(labelName);
+		row.add(addressView);
+	
+	
+	
+		droppinAndAddressLabel.addEventListener('click',function(e){
+
 			var str = 'http://maps.google.com.au/?daddr='+
-					address + '&saddr='+ CURRENT_LOCATION;
+					e.source.parent.text + '&saddr='+ CURRENT_LOCATION;
 				
 			var webview = Ti.UI.createWebView({url:str});	
 			win6.add(webview);
 			win6.backButtonTitle = 'back';
-			nav.open(win6, {animated:true});		
+			nav.open(win6, {animated:true});			
 		});
+
+		var descriptionView = Ti.UI.createView({
+			height:Titanium.UI.SIZE,
+			layout:'vertical',
+			left:10,
+			top:100,
+			bottom:10,
+			right:10,
+			backgroundColor:"#363F45"
+		});	
+
 	
-		
 		// creates a image view with one star and takes the position of the star as an argument
-		var star = function(leftPosition){
+		var star = function(leftPosition, imgPath){
 			var star = Ti.UI.createImageView({
-				image: '/images/star_yellow1.png',
+				image: imgPath,
 				top: 5,
 				left:leftPosition,
 				height:25,
@@ -337,8 +380,8 @@
 		};
 		
 		var labelRating = Titanium.UI.createLabel({
-			top: 15,
-			left:0,
+			top: 5,
+			left:5,
 			height:40,
 			width:"100%",
 			color:"#FFFFFF",
@@ -348,21 +391,23 @@
 		// determines how many stars for each skatepark and adds them 
 		// to the ratings label
 		(function (){			
-			var pos1 = 0; var pos2 = 25; var pos3 = 50; var pos4 = 75; var pos5 = 100;
+			var pos1 = 0, pos2 = 25, pos3 = 50, pos4 = 75, pos5 = 100;
+			var yel = '/images/star_yellow1.png', grey = '/images/star_grey.png';
+			
 			if (resultSet.fieldByName('Star_Rating') === '1 stars'){
-				labelRating.add(star(pos1));	
+				labelRating.add(star(pos1,yel),star(pos2,gery),star(pos3,grey),star(pos4,grey),star(pos5,grey));
 			}
 			else if (resultSet.fieldByName('Star_Rating') === '2 stars'){
-				labelRating.add(star(pos1),star(pos2));	
+				labelRating.add(star(pos1,yel),star(pos2,yel),star(pos3,grey),star(pos4,grey),star(pos5,grey));
 			}
 			else if (resultSet.fieldByName('Star_Rating') === '3 stars'){
-				labelRating.add(star(pos1),star(pos2),star(pos3));	
+				labelRating.add(star(pos1,yel),star(pos2,yel),star(pos3,yel),star(pos4,grey),star(pos5,grey));	
 			}
 			else if (resultSet.fieldByName('Star_Rating') === '4 stars'){
-				labelRating.add(star(pos1),star(pos2),star(pos3),star(pos4));	
+				labelRating.add(star(pos1,yel),star(pos2,yel),star(pos3,yel),star(pos4,yel),star(pos5,grey));	
 			}
 			else if (resultSet.fieldByName('Star_Rating') === '5 stars'){
-				labelRating.add(star(pos1),star(pos2),star(pos3),star(pos4),star(pos5));
+				labelRating.add(star(pos1,yel),star(pos2,yel),star(pos3,yel),star(pos4,yel),star(pos5,yel));
 			}		
 		})();
 			
@@ -387,8 +432,8 @@
 			color:"#FFFFFF",
 			backgroundColor:"#363F45"
 		});			
-		labelDesc.add(descText);	
-		
+	
+		descriptionView.add(labelRating, descText);
 	
 		// thumnbnail image of skatepark in list		
 		var imageThumb = Ti.UI.createImageView({
@@ -398,7 +443,6 @@
 			height:80,
 			width:80,
 			borderWidth:2,
-			borderRadius: 3,
 			borderColor: "#FFFFFF"		
 		});
 		
@@ -421,6 +465,19 @@
 					maxZoomScale:4.0
 				});
 				imgWrapper.add(img);
+				
+				
+				Ti.App.addEventListener('orient', function(evt){
+					if (evt.portrait===true) {
+						imgWrapper.contentWidth = 300;
+						imgWrapper.contentHeight = 150;
+					}else{
+						imgWrapper.contentWidth = 480;
+						imgWrapper.contentHeight = 300;
+					}
+					
+				});
+			
 				return imgWrapper;
 			};
 				
@@ -433,7 +490,7 @@
 			});
 			
 			photosView.addEventListener('pinch', function(e){
-				scale:2;
+				scale:2;	
 			});
 			
 			win3.add(photosView);
@@ -441,14 +498,12 @@
 			nav.open(win3, {animated:true});
 		});
 
-		nameAndAddressView.add(labelName);
-		nameAndAddressView.add(droppinLabel);	
-		descriptionView.add(labelRating, labelDesc);
-		row.add(nameAndAddressView, descriptionView);
+		row.add( descriptionView);
 		row.add(imageThumb);		
 		data.push(row);
-		tv.setData(data);	
+		tv.setData(data);
 	};
+	
 	
 	// builds the initial list of parks and sorts them in ascending order by distance from current location 
 	var buildList = function(){
@@ -537,10 +592,10 @@
 		
 		if(win2.children){
 			while (win2.children.length != 0){
-				var len = win2.children.length;
 				try{
+					Ti.API.info(win2.children.length);
 						win2.remove(win2.children[0]);
-						wait(10);
+						//wait(5);
 				}catch(e){
 					
 				}
@@ -710,8 +765,7 @@
 	
 ///////////////////////////////////////////////////////////////////////////////////////////	
 ///////////////////////////////////////////////////////////////////////////////////////////		
-	win1.add(listButton);
-	win1.add(mapButton);
+
 	masterWindow.add(nav);
 	masterWindow.open();
 
