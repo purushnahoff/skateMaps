@@ -1,3 +1,11 @@
+/*
+ * Name: SkateMaps
+ * Purpose: Skatepark finder app with directions 
+ * Programmer: Purush Wilson
+ * Date: 25/10/2013
+ * Platform: iOS iPhone
+ * 
+ */
 (function() {
 	var masterWindow = Ti.UI.createWindow({
 		orientationModes:[Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT, Ti.UI.LANDSCAPE_RIGHT]	
@@ -657,4 +665,4 @@
 	masterWindow.open();
 
 })();
-// END APPLICATION
+// END OF APPLICATION
